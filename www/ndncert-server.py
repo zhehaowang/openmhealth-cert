@@ -429,7 +429,7 @@ class CertPublisher(object):
     def onInterest(self, prefix, interest, face, interestFilterId, filter):
         # Hard coded interest length
         if (not (interest.getName().size() == 8 and interest.getName().get(7).toEscapedString() == "ID-CERT")):
-            print("Not an interest for this: " + interest.getName.toUri())
+            print("Not an interest for this: " + interest.getName().toUri())
             return
 
         print("Got interest: " + interest.getName().toUri())
