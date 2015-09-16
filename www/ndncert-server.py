@@ -45,6 +45,17 @@ import hashlib
 
 from bson import json_util
 
+# Cert publisher includes
+try:
+    import asyncio
+except ImportError:
+    import trollius as asyncio
+from pyndn.threadsafe_face import ThreadsafeFace
+from pyndn.security import KeyChain
+
+import threading
+import logging
+
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
 # name of app is also name of mongodb "database"
@@ -231,7 +242,7 @@ def issue_certificate(request):
                '--signed-info', '%s %s' % ('1.2.840.113549.1.9.1', sanitize(request['email'])),
                
                '--sign-id', str(app.config['NAME_PREFIX']),
-               '--cert-prefix', str(app.config['NAME_PREFIX']),
+               '--cert-prefix', ndn.Name(str(app.config['NAME_PREFIX'])).append(request['email']).toUri(),
                '--request', '-'
                ]
 
@@ -399,5 +410,82 @@ def extract_cert_name(name):
             newname.append(component)
     return newname
 
+#############################################################################################
+# PyNDN publisher functions
+#############################################################################################
+
+class CertPublisher(object):
+    def start(self):
+        self.prepareLogging()
+
+        self._loop = asyncio.get_event_loop()
+        self._face = ThreadsafeFace(self._loop)
+        self._keyChain = KeyChain()
+        self._certName = self._keyChain._identityManager.getDefaultCertificateNameForIdentity(ndn.Name(app.config['NAME_PREFIX']))
+
+        self._face.setCommandSigningInfo(self._keyChain, ndn.Name(self._certName))
+        self._face.registerPrefix(ndn.Name(app.config['NAME_PREFIX']), self.onInterest, self.onRegisterFailed)
+
+    def onInterest(self, prefix, interest, face, interestFilterId, filter):
+        # Hard coded interest length
+        if (not (interest.getName().size() == 8 and interest.getName().get(7).toEscapedString() == "ID-CERT")):
+            print("Not an interest for this: " + interest.getName.toUri())
+            return
+
+        print("Got interest: " + interest.getName().toUri())
+        # Note: for now we assume there is only one record stored; need to provide app context in order to use Flask-PyMongo
+        with app.app_context():
+            res = mongo.db.certs.find_one({"name": re.compile("^" + re.escape(interest.getName().toUri()))})
+            if (res is not None):
+                print(res["cert"])
+                certDataString = base64.b64decode(res["cert"])
+                certData = ndn.Data()
+                certData.wireDecode(ndn.Blob(buffer(certDataString)))
+
+                self._keyChain.sign(certData, self._certName)
+                self._face.putData(certData)
+                print("Replied with data")
+            else:
+                print("Cert not found")
+        return
+
+    def onRegisterFailed(self, prefix):
+        print("Register failed for prefix", prefix.toUri())
+
+##############################################################################################
+# Logging
+#############################################################################################
+
+    def prepareLogging(self):
+        self.log = logging.getLogger(str(self.__class__))
+        self.log.setLevel(logging.DEBUG)
+        logFormat = "%(asctime)-15s %(name)-20s %(funcName)-20s (%(levelname)-8s):\n\t%(message)s"
+        self._console = logging.StreamHandler()
+        self._console.setFormatter(logging.Formatter(logFormat))
+        self._console.setLevel(logging.INFO)
+        # without this, a lot of ThreadsafeFace errors get swallowed up
+        logging.getLogger("trollius").addHandler(self._console)
+        self.log.addHandler(self._console)
+
+    def setLogLevel(self, level):
+        """
+        Set the log level that will be output to standard error
+        :param level: A log level constant defined in the logging module (e.g. logging.INFO) 
+        """
+        self._console.setLevel(level)
+
+    def getLogger(self):
+        """
+        :return: The logger associated with this node
+        :rtype: logging.Logger
+        """
+        return self.log
+
 if __name__ == '__main__':
+    publisher = CertPublisher()
+    publisher.start()
+    publisherThread = threading.Thread(target = publisher._loop.run_forever)
+    publisherThread.daemon = True
+    publisherThread.start()
+
     app.run(debug = True, host='0.0.0.0')
