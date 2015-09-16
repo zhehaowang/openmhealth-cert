@@ -48,7 +48,7 @@ from bson import json_util
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 
 # name of app is also name of mongodb "database"
-app = Flask("ndncert", template_folder=tmpl_dir)
+app = Flask("icncert", template_folder=tmpl_dir)
 app.config.from_pyfile('%s/settings.py' % os.path.dirname(os.path.abspath(__file__)))
 mongo = PyMongo(app)
 mail = Mail(app)
@@ -90,7 +90,7 @@ def request_token():
             'email': user_email,
             'token': get_random_string(),
             'created_on': datetime.datetime.utcnow(), # to periodically remove unverified tokens
-            'assigned_namespace': ndn.Name(app.config['NAME_PREFIX']).append(get_random_string()).toUri()
+            'assigned_namespace': ndn.Name(app.config['NAME_PREFIX']).append(user_email).toUri()
             }
         mongo.db.tokens.insert(token)
 
@@ -343,12 +343,14 @@ def process_submitted_cert(cert_data, email, user_fullname):
                                              URL=app.config['URL'],
                                              quoted_cert_name=urllib.quote(cert['name'], ),
                                              cert_id=str(data.getName()[-3]),
-                                             fullname=user_fullname),
+                                             fullname=user_fullname,
+                                             cert_base64=cert_data),
                       html = render_template('cert-issued-email.html',
                                              URL=app.config['URL'],
                                              quoted_cert_name=urllib.quote(cert['name'], ''),
                                              cert_id=str(data.getName()[-3]),
-                                             fullname=user_fullname))
+                                             fullname=user_fullname,
+                                             cert_base64=cert_data))
         mail.send(msg)
         
         if (not app.config['AUTO_APPROVE']):

@@ -5,6 +5,10 @@ You can download and install it either by using the following command or open th
 
 ndnsec-install-cert “{{ URL }}/cert/get/?name={{ quoted_cert_name }}”
 
+You can see the base64 encoded cert as below
+
+{{ cert_base64 }}
+
 
 To see what certificates has been installed on the system and which ones are default, you can use the following command:
 
