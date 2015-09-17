@@ -1,11 +1,7 @@
 <p><b>Greetings, {{ fullname }}!</b></p>
 
 <p>
-Your NDN certificate has been approved and is ready for download.
-You can download and install it either by using the following command or open the link with Android Identity Manager:
-</p>
-
-<p>ndnsec-install-cert <a href="{{ URL }}/cert/get/?name={{ quoted_cert_name }}">{{ URL }}/cert/get/?name={{ quoted_cert_name }}</a>
+Your ICN tutorial chat certificate has been approved and is ready for installation.  
 </p>
 
 <p>
@@ -18,24 +14,10 @@ You can see the base64 encoded cert as below
 </p>
 <p>{{ cert_base64 }}
 </p>
-
 <p>
-To see what certificates has been installed on the system and which ones are default, you can use the following command:
+, and copy the string into the textarea in "install signed certificate" dialog; the dialog can be accessed by clicking the tools button on the top right corner of the page, then click the "install signed certificate" button.
 </p>
-
-<pre>ndnsec-ls-identity -C
-</pre>
-
-<p>
-Other useful commands include:
-</p>
-
-<pre>ndnsec-dump-certificate
-ndnsec-get-default
-ndnsec-set-default
-</pre>
-
 
 <p>Sincerely,<br/>
-NDN Testbed Certificate robot
+Zhehao
 </p>

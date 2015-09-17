@@ -12,24 +12,21 @@
 <div id="request-form-body">
 
   <div class="instructions">
-    <p>Please fill information about you and submit NDN certfication request.</p>
+    <p>Please fill information about you and submit ICN tutorial chat certfication request.</p>
 
     <p>Note that a limited number of characters are allowed to be included in NDN certificates, including lower and upper case latin letters, numbers, and punctuation symbols.</p>
 
     <p>To generate NDN certification request, please follow the instructions below:
 
     <ul>
-      <li>Ensure that you have installed NFD.  If you do not have NFD installed yet, you can follow <a href="http://named-data.net/doc/NFD/current/INSTALL.html" target="_blank">these simple installation instructions</a>.</li>
-      <li>Open terminal and issue the following command:<br/>
-
-      <div>
-      <pre>
-        ndnsec-keygen {{ assigned_namespace }}</pre>
-      </div>
-      </li>
-
       <li>
-      Copy the output of the command into the 'NDN certification request' field below
+      Login to <a href="http://memoria.ndn.ucla.edu/icn-tutorial/icn-tutorial-app/" target="_blank">chat</a> with your email and user name.
+      </li>
+      <li>
+      Click the tools button on the top right corner of the page, and click "Request certificate" button
+      </li>
+      <li>
+      Copy the cert string from the displayed dialog into the 'NDN certification request' field below; Please wait a few seconds and reopen this dialog, if it says "cert not ready yet"
       </li>
     </ul>
   </div>
@@ -39,26 +36,15 @@
   <form name="input" id="input">
 
   <br/>
-  <b>Full name:</b>
+  <b>Full name (required):</b>
   <input type="text" id="full-name" name="full_name" size="20"></input>
   <br/>
-  <!--
-  Homepage URL (optional):
-  <input type="text" name="homeurl" size="20"></input>
-  <br/>
-  Department/Group (optional):
-  <input type="text" name="group" class="group" size="20"></input>
-  <br/>
-  Advisor Name (optional):
-  <input type="text" name="advisor" size="20"></input>
-  <br/>
-  -->
 
   <b>Email:</b>
   <div class="box"><b>{{ email }}</b></div>
   <br/>
 
-  <b>NDN certification request:</b>
+  <b>NDN certification request (required):</b>
   <textarea class="cert-request" name="cert_request" id="cert-request"></textarea>
 
   <input type="hidden" name="email" value="{{ email }}"></input>
