@@ -355,13 +355,13 @@ def process_submitted_cert(cert_data, email, user_fullname):
                                              quoted_cert_name=urllib.quote(cert['name'], ),
                                              cert_id=str(data.getName()[-3]),
                                              fullname=user_fullname,
-                                             cert_base64=cert_data),
+                                             cert_base64=re.sub(r'\s+', '', cert_data)),
                       html = render_template('cert-issued-email.html',
                                              URL=app.config['URL'],
                                              quoted_cert_name=urllib.quote(cert['name'], ''),
                                              cert_id=str(data.getName()[-3]),
                                              fullname=user_fullname,
-                                             cert_base64=cert_data))
+                                             cert_base64=re.sub(r'\s+', '', cert_data)))
         mail.send(msg)
         
         if (not app.config['AUTO_APPROVE']):
@@ -429,10 +429,9 @@ class CertPublisher(object):
     def onInterest(self, prefix, interest, face, interestFilterId, filter):
         # Hard coded interest length
         if (not (interest.getName().size() == 8 and interest.getName().get(7).toEscapedString() == "ID-CERT")):
-            print("Not an interest for this: " + interest.getName().toUri())
+            #print("Not an interest for this: " + interest.getName().toUri())
             return
 
-        print("Got interest: " + interest.getName().toUri())
         # Note: for now we assume there is only one record stored; need to provide app context in order to use Flask-PyMongo
         with app.app_context():
             res = mongo.db.certs.find_one({"name": re.compile("^" + re.escape(interest.getName().toUri()))})
