@@ -16,17 +16,17 @@
 
     <p>Note that a limited number of characters are allowed to be included in NDN certificates, including lower and upper case latin letters, numbers, and punctuation symbols.</p>
 
-    <p>To generate NDN certification request, please follow the instructions below:
+    <p>To generate ICN tutorial chat certification request, please follow the instructions below:
 
     <ul>
       <li>
       Login to <a href="http://memoria.ndn.ucla.edu/icn-tutorial/icn-tutorial-app/" target="_blank">chat</a> with your email and user name.
       </li>
       <li>
-      Click the tools button on the top right corner of the page, and click "Request certificate" button
+      Click the tools button on the top right corner of the page, and click "Show certificate" button
       </li>
       <li>
-      Copy the cert string from the displayed dialog into the 'NDN certification request' field below; Please wait a few seconds and reopen this dialog, if it says "cert not ready yet"
+      Copy the cert string from the displayed dialog into the 'ICN tutorial chat certification request' field below; Please try with newer version of Firefox (40 or 41), if the dialog says "cert not ready yet"
       </li>
     </ul>
   </div>
@@ -44,7 +44,7 @@
   <div class="box"><b>{{ email }}</b></div>
   <br/>
 
-  <b>NDN certification request (required):</b>
+  <b>ICN tutorial chat certification request (required):</b>
   <textarea class="cert-request" name="cert_request" id="cert-request"></textarea>
 
   <input type="hidden" name="email" value="{{ email }}"></input>
@@ -75,7 +75,7 @@ document.getElementById('submit-btn').onclick = function () {
           var response = JSON.parse(req.responseText);
           if (response.status == 200) {
             bodyElement.innerHTML = "<div class=\"instructions\"> \
-              Your request for NDN certificate has been received.  \
+              Your request for ICN tutorial chat certificate has been received.  \
               Your request will be processed and you should receive an email when your certificate is generated. \
             </div>";
           } else {
