@@ -26,7 +26,6 @@ from flask.ext.mail import Mail, Message
 # mail
 import smtplib
 from email.mime.text import MIMEText
-import smtplib
 
 import os
 import string
@@ -105,7 +104,7 @@ def request_token():
             }
         mongo.db.tokens.insert(token)
 
-        msg = Message("[NDN Certification] Request confirmation",
+        msg = Message("[ICN Chat Certification] Request confirmation",
                       sender = app.config['MAIL_FROM'],
                       recipients = [user_email],
                       body = render_template('token-email.txt', URL=app.config['URL'], **token),
@@ -149,10 +148,8 @@ def submit_request():
         token = mongo.db.tokens.find_one({'email':user_email, 'token':user_token})
         if (token == None):
             abort(403, "No such token for this email address")
-
         # Now, do basic validation of correctness of user input, save request in the database
         # and notify the operator
-
         # if getting operator fails, don't process this post request
         try:
             operator = get_operator()
@@ -162,8 +159,8 @@ def submit_request():
 
         if user_fullname == "":
             abort(400, "User full name should not be empty")
-        try:
-            user_cert_request = base64.b64decode(request.form['cert_request'])
+	try:
+	    user_cert_request = base64.b64decode(request.form['cert_request'])
             user_cert_data = ndn.Data()
             user_cert_data.wireDecode(ndn.Blob(buffer(user_cert_request)))
         except:
