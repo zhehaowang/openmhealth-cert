@@ -321,7 +321,7 @@ def process_submitted_cert(cert_data, email, user_fullname):
         # eventually, need to check data.type: if NACK, then content contains reason for denial
         #                                      if KEY, then content is the certificate
 
-        msg = Message("[NDN Certification] Rejected certification",
+        msg = Message("[ICN tutorial chat Certification] Rejected certification",
                       sender = app.config['MAIL_FROM'],
                       recipients = [email],
                       body = render_template('cert-rejected-email.txt',
@@ -344,7 +344,7 @@ def process_submitted_cert(cert_data, email, user_fullname):
             }
         mongo.db.certs.insert(cert)
 
-        msg = Message("[NDN Certification] NDN certificate issued",
+        msg = Message("[ICN tutorial chat Certification] Certificate issued",
                       sender = app.config['MAIL_FROM'],
                       recipients = [email],
                       body = render_template('cert-issued-email.txt',
@@ -352,13 +352,13 @@ def process_submitted_cert(cert_data, email, user_fullname):
                                              quoted_cert_name=urllib.quote(cert['name'], ),
                                              cert_id=str(data.getName()[-3]),
                                              fullname=user_fullname,
-                                             cert_base64=cert_data),
+                                             cert_base64=re.sub(r'\s+', '', cert_data)),
                       html = render_template('cert-issued-email.html',
                                              URL=app.config['URL'],
                                              quoted_cert_name=urllib.quote(cert['name'], ''),
                                              cert_id=str(data.getName()[-3]),
                                              fullname=user_fullname,
-                                             cert_base64=cert_data))
+                                             cert_base64=re.sub(r'\s+', '', cert_data)))
         mail.send(msg)
         
         if (not app.config['AUTO_APPROVE']):
