@@ -220,6 +220,30 @@ def submit_request():
                 print(e)
                 abort(500, str(e))
             
+@app.route('/bms-cert-hack', methods = ['GET'])
+def issue_bms_certificate():
+    today = datetime.datetime.utcnow()
+
+    not_before = (today - datetime.timedelta(days=1)  ).strftime('%Y%m%d%H%M%S')
+    not_after  = (today + datetime.timedelta(days=365)).strftime('%Y%m%d%H%M%S')
+
+    cmdline = ['ndnsec-certgen',
+               '--not-before', not_before,
+               '--not-after',  not_after,
+               '--subject-name', sanitize(request.args.get('subject_name')),
+               
+               '--sign-id', "/ndn/edu/ucla/remap/bms",
+               '--cert-prefix', ndn.Name(request.args.get('cert_prefix')).toUri(),
+               '--request', '-'
+               ]
+
+    p = subprocess.Popen(cmdline, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    # desanitize + sign in GET request
+    cert, err = p.communicate(request.args.get('cert').replace(' ', '+'))
+    if p.returncode != 0:
+        raise RuntimeError("ndnsec-certgen error")
+    return cert.rstrip()
+
 
 #############################################################################################
 # Certificate issue and publish methods, only used if auto approve is select
