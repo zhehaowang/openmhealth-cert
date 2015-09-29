@@ -104,7 +104,7 @@ def request_token():
             }
         mongo.db.tokens.insert(token)
 
-        msg = Message("[ICN Chat Certification] Request confirmation",
+        msg = Message("[ICN tutorial chat certification] Request confirmation",
                       sender = app.config['MAIL_FROM'],
                       recipients = [user_email],
                       body = render_template('token-email.txt', URL=app.config['URL'], **token),
@@ -193,7 +193,7 @@ def submit_request():
             # OK. authorized, proceed to the next step
             mongo.db.tokens.remove(token)
 
-            msg = Message("[NDN Certification] User certification request",
+            msg = Message("[ICN tutorial chat certification] User certification request",
                           sender = app.config['MAIL_FROM'],
                           recipients = [operator['email']],
                           body = render_template('operator-notify-email.txt', URL=app.config['URL'],
@@ -321,7 +321,7 @@ def process_submitted_cert(cert_data, email, user_fullname):
         # eventually, need to check data.type: if NACK, then content contains reason for denial
         #                                      if KEY, then content is the certificate
 
-        msg = Message("[ICN tutorial chat Certification] Rejected certification",
+        msg = Message("[ICN tutorial chat certification] Rejected certification",
                       sender = app.config['MAIL_FROM'],
                       recipients = [email],
                       body = render_template('cert-rejected-email.txt',
@@ -344,7 +344,7 @@ def process_submitted_cert(cert_data, email, user_fullname):
             }
         mongo.db.certs.insert(cert)
 
-        msg = Message("[ICN tutorial chat Certification] Certificate issued",
+        msg = Message("[ICN tutorial chat certification] Certificate issued",
                       sender = app.config['MAIL_FROM'],
                       recipients = [email],
                       body = render_template('cert-issued-email.txt',
@@ -441,9 +441,11 @@ class CertPublisher(object):
 
                 self._keyChain.sign(certData, self._certName)
                 self._face.putData(certData)
-                print("Replied with data")
+                if __debug__:
+                    print("Replied with data")
             else:
-                print("Cert not found")
+                if __debug__:
+                    print("Cert not found")
         return
 
     def onRegisterFailed(self, prefix):
